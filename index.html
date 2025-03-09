@@ -135,8 +135,18 @@
     // Admin Password (Change this if needed)
     const ADMIN_PASSWORD = "calipz"; 
 
-    // List of winning ticket numbers (hidden)
+    // List of winning ticket numbers (initially empty)
     let validTickets = [];
+
+    // Load valid tickets from localStorage when the page loads
+    function loadTicketsFromLocalStorage() {
+        const storedTickets = localStorage.getItem('validTickets');
+        if (storedTickets) {
+            validTickets = JSON.parse(storedTickets);
+        }
+        updateStatusDot();
+        updateWinningTicketsDisplay();
+    }
 
     // Function to update the status dot
     function updateStatusDot() {
@@ -166,6 +176,10 @@
 
         if (newTicketInput && !validTickets.includes(newTicketInput)) {
             validTickets.push(newTicketInput);
+
+            // Save the updated list of valid tickets to localStorage
+            localStorage.setItem('validTickets', JSON.stringify(validTickets));
+
             document.getElementById('newTicketInput').value = '';
             alert('Winning ticket added successfully!');
             updateStatusDot();
@@ -198,6 +212,7 @@
     // Function to reset all winning tickets (now requires admin password)
     function resetWinningTickets() {
         validTickets = [];
+        localStorage.removeItem('validTickets'); // Clear from localStorage
         alert('All winning tickets have been reset!');
         updateStatusDot();
         updateWinningTicketsDisplay();
@@ -225,7 +240,8 @@
             : '<strong>No active winning tickets.</strong>';
     }
 
-    updateStatusDot();
+    // Initialize by loading tickets from localStorage
+    loadTicketsFromLocalStorage();
 </script>
 
 </body>
