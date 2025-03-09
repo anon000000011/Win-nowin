@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 400px;
+        }
+
+        input {
+            padding: 10px;
+            width: 80%;
+            margin-bottom: 15px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .reset-btn {
+            background-color: #dc3545;
+        }
+
+        .reset-btn:hover {
+            background-color: #c82333;
+        }
+
+        .toggle-btn {
+            background-color: #007bff;
+        }
+
+        .toggle-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .winner {
+            color: green;
+        }
+
+        .not-winner {
+            color: red;
+        }
+
+        /* Status Dot */
+        .status-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: red;
+            margin-left: 5px;
+        }
+
+        /* Winning Tickets List */
+        #winningTickets {
+            margin-top: 15px;
+            font-size: 16px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Ticket Number Checker</h2>
+
+    <div class="status-container">
+        <span>Winning Tickets Status:</span>
+        <span id="statusDot" class="status-dot"></span>
+    </div>
+
+    <input type="password" id="newTicketInput" placeholder="Enter new winning ticket">
+    <br>
+    <button onclick="verifyAdmin('add')">Add Winning Ticket</button>
+    <button class="reset-btn" onclick="verifyAdmin('reset')">Reset Winning Tickets</button>
+    <br>
+    <button class="toggle-btn" onclick="verifyAdmin('toggle')">Show Winning Tickets</button>
+
+    <input type="text" id="ticketInput" placeholder="Enter Ticket Number">
+    <br>
+    <button onclick="checkTicket()">Check Ticket</button>
+
+    <div id="result" class="result"></div>
+
+    <!-- Winning Tickets Display -->
+    <div id="winningTickets"></div>
+</div>
+
+<script>
+    // Admin Password (Change this if needed)
+    const ADMIN_PASSWORD = "calipz"; 
+
+    // List of winning ticket numbers (hidden)
+    let validTickets = [];
+
+    // Function to update the status dot
+    function updateStatusDot() {
+        const statusDot = document.getElementById('statusDot');
+        statusDot.style.backgroundColor = validTickets.length > 0 ? 'green' : 'red';
+    }
+
+    // Function to verify admin password before executing an action
+    function verifyAdmin(action) {
+        let enteredPassword = prompt("Enter Admin Password:");
+        if (enteredPassword === ADMIN_PASSWORD) {
+            if (action === 'add') {
+                addWinningTicket();
+            } else if (action === 'toggle') {
+                toggleWinningTickets();
+            } else if (action === 'reset') {
+                resetWinningTickets();
+            }
+        } else {
+            alert("Incorrect password! Access denied.");
+        }
+    }
+
+    // Function to add a new winning ticket (only after admin password is verified)
+    function addWinningTicket() {
+        const newTicketInput = document.getElementById('newTicketInput').value;
+
+        if (newTicketInput && !validTickets.includes(newTicketInput)) {
+            validTickets.push(newTicketInput);
+            document.getElementById('newTicketInput').value = '';
+            alert('Winning ticket added successfully!');
+            updateStatusDot();
+            updateWinningTicketsDisplay();
+        } else {
+            alert('Please enter a valid, unique ticket number.');
+        }
+    }
+
+    // Function to check if the ticket is a winner
+    function checkTicket() {
+        const ticketInput = document.getElementById('ticketInput').value;
+        const resultDiv = document.getElementById('result');
+
+        resultDiv.innerHTML = '';
+
+        if (validTickets.includes(ticketInput)) {
+            resultDiv.innerHTML = 'Congratulations! It\'s a winner! You have won 3.5g Cali. Message your plug to claim your prize!';
+            resultDiv.classList.add('winner');
+            resultDiv.classList.remove('not-winner');
+        } else {
+            resultDiv.innerHTML = 'Sorry, this ticket is not a winner.';
+            resultDiv.classList.add('not-winner');
+            resultDiv.classList.remove('winner');
+        }
+
+        document.getElementById('ticketInput').value = '';
+    }
+
+    // Function to reset all winning tickets (now requires admin password)
+    function resetWinningTickets() {
+        validTickets = [];
+        alert('All winning tickets have been reset!');
+        updateStatusDot();
+        updateWinningTicketsDisplay();
+    }
+
+    // Function to show/hide winning tickets (only after admin password is verified)
+    function toggleWinningTickets() {
+        const winningTicketsDiv = document.getElementById('winningTickets');
+        const toggleButton = document.querySelector('.toggle-btn');
+
+        if (winningTicketsDiv.style.display === 'none' || winningTicketsDiv.style.display === '') {
+            winningTicketsDiv.style.display = 'block';
+            toggleButton.textContent = 'Hide Winning Tickets';
+        } else {
+            winningTicketsDiv.style.display = 'none';
+            toggleButton.textContent = 'Show Winning Tickets';
+        }
+    }
+
+    // Function to update winning tickets display
+    function updateWinningTicketsDisplay() {
+        const winningTicketsDiv = document.getElementById('winningTickets');
+        winningTicketsDiv.innerHTML = validTickets.length > 0 
+            ? `<strong>Winning Tickets:</strong> ${validTickets.join(', ')}`
+            : '<strong>No active winning tickets.</strong>';
+    }
+
+    updateStatusDot();
+</script>
+
+</body>
+</html>
